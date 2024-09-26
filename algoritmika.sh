@@ -95,12 +95,55 @@ function add() {
             current_date=$(date +%Y-%m-%d)
             current_time=$(date +%H:%M)
 
-            read -p "Date [$current_date]: " day
-            [ "$day" = "" ] && day=$current_date
-            read -p "Time [$current_time]: " start_time
-            [ "$start_time" = "" ] && start_time=$current_time
-            read -p "Course [Python Pro 2nd year - offline]: " course
-            [ "$course" = "" ] && echo "Value needed" && exit 1
+            # As there's little chance that year will be in time format
+            # let's check date and time in one go
+            is_valid_data() {
+                if [[ "$1" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]] ||
+                   [[ "$1" =~ ^[0-9]{2}:[0-9]{2}$ ]] ||
+                   [[ "$1" =~ ^$ ]]
+                then
+                    return 0
+                else
+                    return 1
+                fi  
+            }   
+            
+            # This works in reverse way - look first at Usage -> below
+            validate_input() {
+                local prompt="$1"
+                local default_value="$2"
+                local input
+
+                while true; do
+                    read -p "$prompt [$default_value]: " input
+                    [ "$input" = "" ] && input=$default_value
+                    if is_valid_data "$input"; then
+                        echo "$input"
+                        break
+                    else
+                        echo "Correct format: [$default_value]" >&2
+                        echo "Invalid input, please try again." >&2
+                    fi
+                done
+            }
+
+            # Usage is calling validate_input
+            # validate_input is calling is_valid_data
+            day=$(validate_input "Date" "$current_date")
+            start_time=$(validate_input "Time" "$current_time")
+
+            echo "Final day value: $day"
+
+            check="check"
+            while [ "$check" = "check" ]
+                do
+                    read -p "Course [Python Pro 2nd year - offline]: " course
+                    if echo "$course" | grep -qE "online|offline"; then
+                        check="don't check"
+                    else
+                        echo "You must chose 'offline' or 'online' here."
+                    fi
+                done
             read -p "Subject [Kivy basics]: " subject
             [ "$subject" = "" ] && echo "Value needed" && exit 1
             read -p "Number of students: " students
