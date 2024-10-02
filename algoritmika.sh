@@ -178,8 +178,8 @@ sqlite3 "$db" <<EOF
 SELECT date, time, $q
     (
         CASE
-            WHEN lessons.course LIKE '%offline%' THEN payment.offline
-            WHEN lessons.course LIKE '%online%' THEN payment.online
+            WHEN $tl.course LIKE '%offline%' THEN $tp.offline
+            WHEN $tl.course LIKE '%online%' THEN $tp.online
         END
     ) AS money
 FROM $tl
@@ -194,8 +194,8 @@ sqlite3 "$db" <<EOF
 SELECT
     SUM(
         CASE
-            WHEN lessons.course LIKE '%offline%' THEN payment.offline
-            WHEN lessons.course LIKE '%online%' THEN payment.online
+            WHEN $tp.course LIKE '%offline%' THEN $tp.offline
+            WHEN $tp.course LIKE '%online%' THEN $tp.online
         END
     ) AS money_total
 FROM $tl
